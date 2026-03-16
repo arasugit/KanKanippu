@@ -1,0 +1,79 @@
+<!-- Tomcat-specific deployment configuration for IST -->
+
+<Context>
+	<!-- data sources using the C3P0 connection pool -->
+	<!-- Postgres -->
+	<!--  <Resource name="jdbc/t21" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="org.postgresql.Driver"
+		jdbcUrl="jdbc:postgresql://10.74.169.96:54322/psql14db" user="paymon"
+		password="psdon#1" maxPoolSize="20" maxIdleTime="900" />
+
+	<Resource name="jdbc/monitor" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="org.postgresql.Driver"
+		jdbcUrl="jdbc:postgresql://10.74.169.96:54322/psql14db" user="paymon"
+		password="psdon#1" maxPoolSize="20" maxIdleTime="900" />
+	<Resource name="jdbc/ist_ent" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="org.postgresql.Driver"
+		jdbcUrl="jdbc:postgresql://10.74.169.96:54322/psql14db" user="paymon"	
+		password="psdon#1" maxPoolSize="20" maxIdleTime="900" />
+	<Resource name="jdbc/ist_audit" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="org.postgresql.Driver"
+		jdbcUrl="jdbc:postgresql://10.74.169.96:54322/psql14db" user="paymon"
+		password="psdon#1" maxPoolSize="20" maxIdleTime="900" />
+	<Resource name="jdbc/ist" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="org.postgresql.Driver"
+		jdbcUrl="jdbc:postgresql://10.74.169.96:54322/psql14db" user="paymon"
+		password="psdon#1" maxPoolSize="20" maxIdleTime="900" /> -->
+
+	<!-- Oracle -->
+	<Resource name="jdbc/t21" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="oracle.jdbc.OracleDriver"
+		jdbcUrl="jdbc:oracle:thin:@//10.74.169.95:1522/psora19cdb"
+		user="psd_swt21app" password="psd_swt21appA1" maxPoolSize="20"
+		maxIdleTime="900" />
+	<Resource name="jdbc/ist" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="oracle.jdbc.OracleDriver"
+		jdbcUrl="jdbc:oracle:thin:@//10.74.169.95:1522/psora19cdb"
+		user="psd_sw_app" password="psd_sw_appA1" maxPoolSize="20"
+		maxIdleTime="900" />
+	<Resource name="jdbc/monitor" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="oracle.jdbc.OracleDriver"
+		jdbcUrl="jdbc:oracle:thin:@//10.74.169.95:1522/psora19cdb"
+		user="psd_monuser" password="psd_monuseA1" maxPoolSize="20"
+		maxIdleTime="900" />
+	<Resource name="jdbc/ist_audit" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="oracle.jdbc.OracleDriver"
+		jdbcUrl="jdbc:oracle:thin:@//10.74.169.95:1522/psora19cdb"
+		user="psd_swentapp" password="psd_swentappA1" maxPoolSize="20"
+		maxIdleTime="900" />
+	<Resource name="jdbc/ist_ent" auth="Container"
+		type="com.mchange.v2.c3p0.ComboPooledDataSource"
+		factory="com.fis.ist.tomcat.TomcatDSFactory"
+		driverClass="oracle.jdbc.OracleDriver"
+		jdbcUrl="jdbc:oracle:thin:@//10.74.169.95:1522/psora19cdb"
+		user="psd_swentapp" password="psd_swentappA1" maxPoolSize="20"
+		maxIdleTime="900" /> 		
+		
+	<Manager pathname="" />
+	<Environment name="ProtectedDirectoryPath"
+		value="C://enc//enc_monitoring_dev//prot_dir"
+		type="java.lang.String" override="false" />
+</Context>

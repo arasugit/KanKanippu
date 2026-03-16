@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    					http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/security 
+                        http://www.springframework.org/schema/security/spring-security.xsd">
+    <beans:import resource="applicationContext-security-common.xml"/>
+   	<beans:bean id="passwordExpiredHandler"
+		class="com.fis.ist.springsecurity.OASAuthenticationFailure">
+		<beans:property name="defaultFailureUrl" value="/login.jsp?login_error=1" />
+		<beans:property name="authType" value="oassrv" />
+		<beans:property name="exceptionMappings">
+			<beans:map>
+				<beans:entry key="org.springframework.security.authentication.CredentialsExpiredException" value="/changepwd.jsp?change_pwd_error=1" />
+			</beans:map>
+		</beans:property>
+	</beans:bean>
+	<beans:bean id="AuthenticationSuccessHandler"
+		class="com.fis.ist.springsecurity.AuthenticationSuccessHandler">
+		<beans:property name="defaultTargetUrl" value="/appSelect.jsp"/>
+		<beans:property name="authType" value="oassrv"/>
+	</beans:bean>
+	 <beans:bean id="web-sec-xh" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler">
+          <beans:property name="permissionEvaluator" ref="istPermissionEvaluator"/>
+    </beans:bean>
+	
+	<!-- The use of "filters='none'" is no longer supported. Please define a separate <http> element for the pattern you want 
+	to exclude and use the attribute access="permitAll".
+     -->
+    <http realm="Switch Realm" use-expressions="true" disable-url-rewriting="true">
+        <expression-handler ref="web-sec-xh"/> 
+        <intercept-url method="OPTIONS" pattern="/**" access="permitAll" />
+        <intercept-url pattern="/timeout.jsp" access="permitAll" />
+        <intercept-url pattern="/timeout.swf" access="permitAll" />
+        <intercept-url pattern="/messagebroker/amf" access="permitAll" />
+        <intercept-url pattern="/css/**" access="permitAll" />
+        <intercept-url pattern="/images/**" access="permitAll"/>        
+        <intercept-url pattern="/js/**" access="permitAll" />
+        <intercept-url pattern="/index.jsp" access="permitAll"/>
+        <intercept-url pattern="/login.jsp" access="permitAll"/>
+        <intercept-url pattern="/logoff.jsp" access="permitAll"/>
+        <intercept-url pattern="/changepwd.jsp" access="permitAll"/>
+        <intercept-url pattern="/changepwdhandler.jsp" access="permitAll"/>
+        <intercept-url pattern="/product/*" access="permitAll"/>
+        <intercept-url pattern="/login.swf" access="permitAll"/>
+        <intercept-url pattern="/com/**/*.swf" access="hasPermission(request.servletPath + (request.pathInfo ?: ''), 'FormURL', 'A')" />
+        <intercept-url pattern="/**" access="isAuthenticated()" />
+        <headers>
+           <cache-control/>
+           <content-type-options/>
+           <frame-options/>
+           <xss-protection />
+           <header name="Cache-Control" value="no-cache;no-store;max-age=0"/>
+           <header name="Content-security-policy" value="default-src 'self';img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self';font-src 'self';"/>
+           <header name="X-Permitted-Cross-Domain-Policies" value="none"/> 
+           <header name="Strict-Transport-Security" value="max-age=31536000;includeSubDomains;preload"/>
+           <header name="Expect-CT" value="max-age=86400;enforce"/>    
+       </headers>
+        <custom-filter ref="requestContextFilter" before="FORM_LOGIN_FILTER"/>
+        <form-login 
+        	login-page="/login.jsp" 
+        	username-parameter="j_username"
+        	password-parameter="j_password"
+        	login-processing-url="/j_spring_security_check"
+        	default-target-url="/appSelect.jsp"
+        	always-use-default-target="true" 
+        	authentication-failure-handler-ref="passwordExpiredHandler"
+        	authentication-success-handler-ref="AuthenticationSuccessHandler"
+        />
+        <logout invalidate-session="true" success-handler-ref="logoutSuccessHandler" logout-url="/j_spring_security_logout"/>
+        <custom-filter before="SESSION_MANAGEMENT_FILTER" ref="invSessionRedirect"/>
+        <custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
+        <session-management session-authentication-strategy-ref="sas"/>
+        <csrf disabled="true"/>
+    </http>
+    <authentication-manager>
+        <authentication-provider ref="istAuthenticationProvider" />
+    </authentication-manager>
+    <beans:bean 
+    	id="istAuthenticationProvider" 
+    	class="com.fis.ist.springsecurity.oassrv.ISTAuthenticationProvider2">
+    	<beans:property name="hideUserNotFoundExceptions" value="${do_loginUsrNotFound:true}"/> 
+    </beans:bean>
+     <beans:bean id="requestContextFilter" class="org.springframework.web.filter.RequestContextFilter"/>
+<beans:bean id="concurrencyFilter"
+   class="org.springframework.security.web.session.ConcurrentSessionFilter">
+  <beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+   <beans:constructor-arg name="expiredUrl" value="/logoff.jsp" /> 
+  <!--  <beans:constructor-arg name="sessionInformationExpiredStrategy" ref="redirectSessionInformationExpiredStrategy" /> -->
+</beans:bean>
+
+
+<!-- <beans:bean id="sas" class=
+ "org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+  <beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+  <beans:property name="maximumSessions" value="1" />
+		<beans:property name="exceptionIfMaximumExceeded" value="true" />
+</beans:bean> -->
+
+ 
+ <beans:bean id="sas"
+            class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+    <beans:constructor-arg>
+        <beans:list>
+            <beans:bean
+                        class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+                <beans:constructor-arg ref="sessionRegistry"/>
+                <beans:property name="maximumSessions" value="${do_maxSessionPerUser:1}" />
+                <beans:property name="exceptionIfMaximumExceeded" value="false" />
+            </beans:bean>
+             <beans:bean
+                        class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy">
+            </beans:bean>
+            <beans:bean
+                        class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+                <beans:constructor-arg ref="sessionRegistry"/>
+            </beans:bean>
+        </beans:list>
+    </beans:constructor-arg>
+</beans:bean>
+<beans:bean id="strictHttpFirewall" class="org.springframework.security.web.firewall.StrictHttpFirewall">
+	<beans:property name="allowSemicolon" value="true"/>
+</beans:bean>
+<http-firewall ref="strictHttpFirewall"/>
+<!--  <beans:bean id="redirectSessionInformationExpiredStrategy"
+  class="org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy">
+    <beans:constructor-arg name="invalidSessionUrl" value="/logoff.jsp" />
+
+</beans:bean> -->
+
+<beans:bean id="sessionRegistry"
+    class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+<beans:bean id="logoutSuccessHandler" class="com.fis.ist.springsecurity.LogoutSuccessHandler">
+		<beans:property name="authType" value="oassrv"/>
+</beans:bean>
+    
+</beans:beans>

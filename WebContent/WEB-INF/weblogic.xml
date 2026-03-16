@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<weblogic-web-app xmlns="http://xmlns.oracle.com/weblogic/weblogic-web-app" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.oracle.com/weblogic/weblogic-web-app http://xmlns.oracle.com/weblogic/weblogic-web-app/1.4/weblogic-web-app.xsd">
+  <session-descriptor></session-descriptor>
+  <jsp-descriptor></jsp-descriptor>
+  <container-descriptor>
+      <prefer-web-inf-classes>true</prefer-web-inf-classes>
+  </container-descriptor>
+  <context-root>IST-Switch</context-root>
+  <library-ref>
+    <library-name>jstl</library-name>
+    <specification-version>1.2</specification-version>
+  </library-ref>
+  <resource-description>
+      <res-ref-name>jdbc/t21</res-ref-name>
+      <jndi-name>jdbc/t21</jndi-name>
+  </resource-description>
+  <resource-description>
+      <res-ref-name>jdbc/ist</res-ref-name>
+      <jndi-name>jdbc/ist</jndi-name>
+  </resource-description>
+  <resource-description>
+      <res-ref-name>jdbc/ist_ent</res-ref-name>
+      <jndi-name>jdbc/ist_ent</jndi-name>
+  </resource-description>
+  <resource-description>
+      <res-ref-name>jdbc/ist_audit</res-ref-name>
+      <jndi-name>jdbc/ist_audit</jndi-name>
+  </resource-description>
+</weblogic-web-app>

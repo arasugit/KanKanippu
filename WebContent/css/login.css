@@ -1,0 +1,6 @@
+.login_title { font-size: 3 }
+.login_error_msg {font-family: arial;font-weight: bold;}
+.csrf_message { font-family: arial;font-weight: bold; }
+.auth_message { font-family: arial;font-weight: bold; }
+
+

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    					http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/security 
+                        http://www.springframework.org/schema/security/spring-security.xsd">
+    <beans:import resource="applicationContext-security-common.xml"/>
+
+	<!-- 
+	<http pattern="/preauth-logout.jsp" security="none"/>
+	-->
+    <http entry-point-ref="preauthProcessingFilterEntryPoint" use-expressions="true">
+      	<intercept-url method="OPTIONS" pattern="/**" access="permitAll" />
+    	<intercept-url pattern="/login.jsp" access="permitAll" />
+    	<intercept-url pattern="/appSelect.jsp" access="permitAll" />
+    	<intercept-url pattern="/preauth-timeout.jsp" access="permitAll" />        
+        <intercept-url pattern="/preuth_timeout.swf" access="permitAll" />
+        <intercept-url pattern="/timeout.jsp" access="permitAll" />
+    	<intercept-url pattern="/messagebroker/amf" access="permitAll" />
+    	<intercept-url pattern="/css/**" access="permitAll" />
+    	<intercept-url pattern="/images/**" access="permitAll" />
+    	<intercept-url pattern="/js/**" access="permitAll" />
+        <intercept-url pattern="/**" access="isAuthenticated()" />
+          <headers>
+           <cache-control />
+           <content-type-options />
+           <frame-options />
+           <xss-protection />              	 
+           		<header name="Cache-Control" value="no-cache;no-store;max-age=0"/> 
+          		<header name="Content-security-policy" value="default-src 'self';img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self';font-src 'self';"/>
+           		<header name="X-Permitted-Cross-Domain-Policies" value="none"/> 
+           		<header name="Strict-Transport-Security" value="max-age=31536000;includeSubDomains;preload"/>
+           		<header name="Expect-CT" value="max-age=86400;enforce"/>             
+       </headers>
+        <!-- <logout invalidate-session="true" logout-success-url="/preauth-logout.jsp"/> -->
+         <logout invalidate-session="true" logout-success-url="/preauth-logout.jsp" logout-url="/j_spring_security_logout"/>
+         
+        <custom-filter before="SESSION_MANAGEMENT_FILTER" ref="invSessionRedirect"/>
+		<custom-filter position="PRE_AUTH_FILTER" ref="siteminderFilter" />
+		<session-management session-fixation-protection="newSession">
+            <concurrency-control 
+            	max-sessions="1" 
+            	error-if-maximum-exceeded="false" 
+            />
+        </session-management>
+    </http>
+
+	<beans:bean id="preauthProcessingFilterEntryPoint" 
+		class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
+<!--     
+	<beans:bean id="siteminderFilter"
+		class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
+-->
+	<beans:bean id="siteminderFilter"
+		class="com.fis.ist.springsecurity.siteminder.DevOnlyHeaderFilter">
+		
+		<beans:property name="principalRequestHeader" value="SM_USER" />
+		<beans:property name="exceptionIfHeaderMissing" value="false" />
+		<beans:property name="checkForPrincipalChanges" value="true" />
+		<beans:property name="defaultPrincipal" value="admin"/>
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+	</beans:bean>
+
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider ref="preauthAuthProvider" />
+	</authentication-manager>
+
+	<beans:bean id="preauthAuthProvider" 
+		class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+		<beans:property name="preAuthenticatedUserDetailsService">
+			<beans:bean id="preauthUserDetailsService" 
+				class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+				<beans:property name="userDetailsService">
+					<beans:bean id="userDetailsService" 
+						class="com.fis.ist.springsecurity.siteminder.UserDetailsSource2"/>
+				</beans:property>
+			</beans:bean>		
+		</beans:property>		
+	</beans:bean>
+
+	<!--  overriding bean declaration -->
+   	<beans:bean id="invSessionRedirect" class="com.fis.ist.springsecurity.InvSessionRedirect">
+   		<beans:property name="loginUrl" value="/appSelect.jsp"/>
+   		<beans:property name="timeoutUrl" value="/preauth-timeout.jsp"/>
+   		<beans:property name="preauth" value="true"/>
+   		<beans:property name="ignore">
+   			<beans:list>
+   				<beans:value>/preauth-logout.jsp</beans:value>
+   			</beans:list>
+   		</beans:property>
+   		
+   	</beans:bean>
+   	<beans:bean id="configParams" 
+		class="com.fis.ist.cfg.ConfigParams"
+		factory-method="getInstance">
+		<beans:property name="additionalProperties">
+			<beans:props>
+				<beans:prop key="flex.do_change_password">n</beans:prop>
+			</beans:props>
+		</beans:property>
+	</beans:bean>
+	
+</beans:beans>

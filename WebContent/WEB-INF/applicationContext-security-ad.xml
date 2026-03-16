@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    					http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/security 
+                        http://www.springframework.org/schema/security/spring-security.xsd">
+    <import resource="applicationContext-security-common.xml"/>
+     <bean id="ldapActiveDirectoryAuthProvider" class="com.fis.ist.springsecurity.ad.ISTActiveDirectoryLdapAuthenticationProvider">
+		<constructor-arg value="${ist.ldap_domain}" />
+		<constructor-arg value="${ist.ldap_url}" />
+		<property name="userDetailsContextMapper" ref="activeDirectoryUserDetailsContextMapper"/>
+		<property name="lookUpGroups" value="${ist.ad_lookup_groups}"/>
+	</bean>
+	
+	<bean id="activeDirectoryUserDetailsContextMapper" class="com.fis.ist.springsecurity.ad.ActiveDirectoryUserDetailsContextMapper"/>
+
+	 <bean id="web-sec-xh" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler">
+          <property name="permissionEvaluator" ref="istPermissionEvaluator"/>
+    </bean>
+	
+    <security:http auto-config="false" use-expressions="true">
+		<security:expression-handler ref="web-sec-xh"/>
+	    <security:intercept-url pattern="/css/**" access="permitAll" />	
+	   	<security:intercept-url pattern="/images/**" access="permitAll"  />
+	   	<security:intercept-url pattern="/js/**" access="permitAll" />
+	   	<security:intercept-url pattern="/index.jsp" access="permitAll"  />
+	   	<security:intercept-url pattern="/login.jsp" access="permitAll"  />
+	   	<security:intercept-url pattern="/logoff.jsp" access="permitAll"  />
+	   	<security:intercept-url pattern="/changepwd.jsp" access="permitAll"  />
+	   	<security:intercept-url pattern="/changepwdhandler.jsp" access="permitAll"  />
+	    <security:intercept-url pattern="/login.swf" access="permitAll"  />
+        <security:intercept-url pattern="/com/**/*.swf" access="hasPermission(request.servletPath + (request.pathInfo ?: ''), 'FormURL', 'A')" />
+        <security:intercept-url pattern="/**" access="isAuthenticated()" />
+        <security:headers>
+           <security:cache-control />
+           <security:content-type-options />
+           <security:frame-options />
+           <security:xss-protection />
+           <security:header name="Cache-Control" value="no-cache;no-store;max-age=0"/> 
+           <security:header name="Content-security-policy" value="default-src 'self';img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self';font-src 'self';"/>
+           <security:header name="X-Permitted-Cross-Domain-Policies" value="none"/> 
+           <security:header name="Strict-Transport-Security" value="max-age=31536000;includeSubDomains;preload"/>
+           <security:header name="Expect-CT" value="max-age=86400;enforce"/> 
+       </security:headers>
+        <!-- Login pages -->
+        <security:form-login 
+        	login-page="/login.jsp" 
+            username-parameter="j_username"
+        	password-parameter="j_password"
+        	login-processing-url="/j_spring_security_check"
+        	default-target-url="/appSelect.jsp"
+            always-use-default-target="true" 
+        	authentication-failure-handler-ref="passwordExpiredHandler"
+        	authentication-success-handler-ref="AuthenticationSuccessHandler" />
+        <!-- <security:logout invalidate-session="true" logout-success-url="/logoff.jsp"/> -->        
+        <security:logout invalidate-session="true" success-handler-ref="logoutSuccessHandler" logout-url="/j_spring_security_logout"/>        
+        <security:custom-filter  before="SESSION_MANAGEMENT_FILTER" ref="invSessionRedirect"/>
+        <security:session-management session-fixation-protection="newSession">
+            <security:concurrency-control 
+            	max-sessions="1" 
+            	error-if-maximum-exceeded="false" 
+            />
+        </security:session-management>
+        <!-- Security zones -->
+        <security:csrf disabled="true"/>
+    </security:http>
+ <security:authentication-manager alias="authenticationManager"> 
+   <security:authentication-provider ref="ldapActiveDirectoryAuthProvider" />
+ </security:authentication-manager>
+ <bean id="AuthenticationSuccessHandler"
+		class="com.fis.ist.springsecurity.AuthenticationSuccessHandler">
+		<property name="defaultTargetUrl" value="/appSelect.jsp"/>
+		<property name="authType" value="ad"/>
+ </bean>
+ <bean id="passwordExpiredHandler"
+		class="com.fis.ist.springsecurity.OASAuthenticationFailure">
+		<property name="defaultFailureUrl" value="/login.jsp?login_error=1" />
+		<property name="authType" value="ad" />
+		<property name="exceptionMappings">
+			<map>
+				<entry key="org.springframework.security.authentication.CredentialsExpiredException" value="/changepwd.jsp?change_pwd_error=1" />
+			</map>
+		</property>
+ </bean>
+</beans>

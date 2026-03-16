@@ -1,0 +1,52 @@
+/* FIS CSS file */
+/* March 1, 2010 */
+/* This is the .css for Decision Solutions container styles */
+
+
+/*
+img, div, a { behavior: url("iepngfix.htc") }
+*/
+
+
+
+
+.input { border: 0px; color:#4F4E4E;font-family: arial;font-size: 11px; }
+
+
+/* container */
+
+.mainContainerBody {
+	background-color:#FFF;
+	padding:0px;
+	
+	
+}
+
+.containerLeft {
+	
+	margin: 0; padding:0; width:14px; background: url(../images/container_left.gif) repeat;
+	
+}
+
+.containerRight {
+	margin: 0; padding:0; width:13px; background: url(../images/container_right.gif) repeat;
+}
+	
+.gnavBgLeft {
+	
+	margin: 0; padding:0; width:19px; height:39px; background: url(../images/navbkgLeft_v2.gif) no-repeat;
+	
+}
+
+.gnavBgCenter {
+	
+	margin: 0; padding:0; height:39px; background: url(../images/navbkgCenter.gif) repeat;
+	
+}
+
+.gnavBgRight {
+	
+	margin: 0; padding:0; width:18px; height:39px; background:url(../images/navbkgRight_v2.gif) no-repeat;
+	
+}
+

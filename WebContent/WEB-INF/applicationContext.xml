@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  $Id$ -->
+<beans 
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    	http://www.springframework.org/schema/beans/spring-beans.xsd
+    	http://www.springframework.org/schema/context
+    	http://www.springframework.org/schema/context/spring-context.xsd
+    	http://www.springframework.org/schema/aop
+    	http://www.springframework.org/schema/aop/spring-aop.xsd"
+>
+	<context:component-scan base-package="com.fis.ist.monitoring" />
+	<bean id="configurer-factory" class="com.fis.ist.cfg.ConfigurerFactory" factory-method="getInstance"/>
+	<!--  the configurer bean is special: it expands the variables in spring cfg files -->
+	<bean id="configurer" factory-bean="configurer-factory" factory-method="make"/>
+	<bean class="com.fis.ist.services.UIMetaDataFileCacher">
+		<property name="checkFiles" value="false"/>
+		<property name="checkDatabase" value="true"/>
+		<property name="preloadFields" value="false"/>
+	</bean>
+	<bean id="paymon-configurer-factory" class="com.fis.ist.monitoring.cfg.PaymonConfigurerFactory" factory-method="getInstance"/>
+	<bean id="paymon-configurer" factory-bean="paymon-configurer-factory" factory-method="make"/>
+    <bean id="menuServiceBean" class="com.fis.ist.monitoring.common.services.MonitorMenuService">
+    	<!--  do_entitlement -->
+    	<constructor-arg value="${do_entitlement}"/>
+    	<!--  do_trimming -->
+    	<constructor-arg value="true"/>
+    	<!--  preload -->
+    	<constructor-arg value="${do_preload}"/>
+    </bean>
+    <bean id="uiServiceBean" class="com.fis.ist.customProject.services.CustomUIService">
+    	<!--  do_entitlement -->
+    	<constructor-arg value="${do_entitlement}"/>
+    	<!--  preload_subservices  -->
+    	<constructor-arg value="${do_preload}"/>
+    </bean>         
+    <bean id="instServiceBean" class="com.fis.ist.services.InstIDService" init-method="init">
+    	<!--  do_entitlement -->
+    	<constructor-arg value="${do_entitlement}"/>
+    </bean>
+    <bean id="monConfigServiceBean" class="com.fis.ist.monitoring.common.services.MonitorConfigService">
+    </bean>
+    
+    
+    <aop:config>
+    	<aop:aspect id="transaction_aspect" ref="transaction_aspect_bean">
+	       	<aop:pointcut id="ids_roRemoteCall" 
+    			expression="execution(public * com.fis.ist.services.InstIDService.get*(..)) || execution(public * com.fis.ist.services.MenuService.getMenu())"
+    		/>
+    		<aop:around method="roRemoteCall" pointcut-ref="ids_roRemoteCall"/>
+    	</aop:aspect>
+    </aop:config>
+    <bean id="transaction_aspect_bean" class="com.fis.ist.spring.TransactionAspect"/>
+    <bean id="tomcat_ds_closer" class="com.fis.ist.tomcat.TomcatDSCloser" destroy-method="close"/>
+</beans>

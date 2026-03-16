@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+
+	<display-name>IST-GUI</display-name>
+	<description>IST GUI application</description>
+
+	<!-- - Location of the XML file that defines the root application context 
+		- Applied by ContextLoaderListener. -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
+	</context-param>
+	<filter>
+		<filter-name>hostHeaderFilter</filter-name>
+		<filter-class>com.fis.ist.security.HostHeaderFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>hostHeaderFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter>
+		<filter-name>Options</filter-name>
+		<filter-class>com.fis.ist.web.OptionsFilter</filter-class>
+		<!-- for development with Node -->
+		<init-param>
+			<param-name>Access-Control-Allow-Origin</param-name>
+			<param-value>http://localhost:4200</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Access-Control-Allow-Credentials</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<!-- sm_user is only here so we don't have to edit the client code yet; 
+				should not remain -->
+			<param-name>Access-Control-Allow-Headers</param-name>
+			<param-value>sm_user,content-type,accept</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>Options</filter-name>
+		<url-pattern>/guijs/*</url-pattern>
+	</filter-mapping>	
+	<filter-mapping>
+		<filter-name>Options</filter-name>
+		<url-pattern>/product/*</url-pattern>
+	</filter-mapping>	
+	<filter>
+		<filter-name>TwoStage</filter-name>
+		<filter-class>com.fis.ist.security.TwoStageFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>TwoStage</filter-name>
+		<url-pattern>/messagebroker/*</url-pattern>
+		<url-pattern>/stage2</url-pattern>
+	</filter-mapping>
+	<filter>
+		<filter-name>CSRFTokenLoad</filter-name>
+		<filter-class>com.fis.ist.csrf.CSRFTokenLoad</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>CSRFTokenLoad</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter>
+		<filter-name>CSRFTokenCheck</filter-name>
+		<filter-class>com.fis.ist.csrf.CSRFTokenCheck</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>CSRFTokenCheck</filter-name>
+		<url-pattern>/j_spring_security_check</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CSRFTokenCheck</filter-name>
+		<url-pattern>/changepwdhandler.jsp</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CSRFTokenCheck</filter-name>
+		<url-pattern>/changepwdhandler1.jsp</url-pattern>
+	</filter-mapping>
+	<filter>
+		<filter-name>ClickjackFilterSameOrigin</filter-name>
+		<filter-class>org.owasp.filters.ClickjackFilter</filter-class>
+		<init-param>
+			<param-name>mode</param-name>
+			<param-value>SAMEORIGIN</param-value>
+		</init-param>
+	</filter>
+	<!-- include only for CAS -->
+	<!-- <filter> <filter-name>CAS Single Sign Out Filter</filter-name> <filter-class>org.jasig.cas.client.session.SingleSignOutFilter</filter-class> 
+		</filter> <filter-mapping> <filter-name>CAS Single Sign Out Filter</filter-name> 
+		<url-pattern>/*</url-pattern> </filter-mapping> <listener><listener-class>org.jasig.cas.client.session.SingleSignOutHttpSessionListener</listener-class></listener> -->
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter>
+		<filter-name>ISTOidcLogoutFilter</filter-name>
+		<filter-class>com.fis.ist.springsecurity.oidc.ISTOidcLogoutFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>ISTOidcLogoutFilter</filter-name>
+		<url-pattern>/oidc-logout.htm</url-pattern>
+	</filter-mapping>
+	<listener>
+		<listener-class>com.fis.ist.cfg.ConfigListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.fis.ist.monitoring.cfg.PaymonConfigListener</listener-class>
+	</listener>
+	<!-- - Loads the root application context of this web app at startup. - 
+		The application context is then available via - WebApplicationContextUtils.getWebApplicationContext(servletContext). 
+		<listener><listener-class>org.springframework.web.context.ContextLoaderListener</listener-class></listener> -->
+	<listener>
+		<listener-class>com.fis.ist.monitoring.bootstrap.MonitorCtxLdrListener</listener-class>
+	</listener>
+	<!-- - Publishes events for session creation and destruction through the 
+		application - context. Optional unless concurrent session control is being 
+		used. -->
+	<listener>
+		<listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
+	</listener>
+
+	<!-- for session-scoped beans -->
+	<listener>
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
+
+	<servlet>
+		<display-name>Jasperreports PDF Export Servlet</display-name>
+		<servlet-name>PDFExportServlet</servlet-name>
+		<servlet-class>net.sf.jasperreports.j2ee.servlets.PdfServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PDFExportServlet</servlet-name>
+		<url-pattern>/reports/pdfServlet/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<display-name>Spring Dispatcher</display-name>
+		<servlet-name>SpringDispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SpringDispatcherServlet</servlet-name>
+		<url-pattern>/guijs/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SpringDispatcherServlet</servlet-name>
+		<url-pattern>/product/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<display-name>NG index.html</display-name>
+		<servlet-name>NG index page</servlet-name>
+		<jsp-file>/WEB-INF/jsp/ng-index.jsp</jsp-file>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>NG index page</servlet-name>
+		<url-pattern>/ng-main.html</url-pattern>
+		<url-pattern>/forms/*</url-pattern>
+	</servlet-mapping>
+	<session-config>
+		<session-timeout>15</session-timeout>
+	</session-config>
+	<mime-mapping>
+		<extension>html</extension>
+		<mime-type>text/html</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>js</extension>
+		<mime-type>application/javascript</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>pdf</extension>
+		<mime-type>application/pdf</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>swf</extension>
+		<mime-type>application/x-shockwave-flash</mime-type>
+	</mime-mapping>
+	<resource-ref>
+		<res-ref-name>jdbc/t21</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<resource-ref>
+		<res-ref-name>jdbc/ist</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<resource-ref>
+		<res-ref-name>jdbc/ist_audit</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<resource-ref>
+		<res-ref-name>jdbc/ist_ent</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<env-entry>
+		<env-entry-name>ProtectedDirectoryPath</env-entry-name>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<error-page>
+		<error-code>401</error-code>
+		<location>/WEB-INF/jsp/error.jsp?message=You are not authorized to
+			view the requested resource.</location>
+	</error-page>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/WEB-INF/jsp/error.jsp?message=You are trying to view a
+			forbidden resource.</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/WEB-INF/jsp/error.jsp?message=Requested resource was not
+			found.</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/WEB-INF/jsp/error.jsp?message=An unexpected error occurred
+			inside the server.</location>
+	</error-page>
+	<error-page>
+		<exception-type>org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException</exception-type>
+		<location>/preauth-failed.jsp</location>
+	</error-page>
+	<error-page>
+		<exception-type>java.lang.Throwable</exception-type>
+		<location>/WEB-INF/jsp/error.jsp?message=Uncaught System Run
+			Time
+			Exception.</location>
+	</error-page>
+</web-app>

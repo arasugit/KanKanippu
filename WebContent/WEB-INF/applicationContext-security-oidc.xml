@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    					http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/security 
+                        http://www.springframework.org/schema/security/spring-security.xsd">
+    <import resource="applicationContext-security-common.xml"/>
+    
+    <security:http>
+     	<security:oauth2-login access-token-response-client-ref="accessTokenResponseClient" client-registration-repository-ref="clientRegistrationRepository"
+     	 oidc-user-service-ref="oidcUserDetails" authentication-failure-handler-ref="authenticationFailureHandler"
+     	  authentication-success-handler-ref="authenticationSuccessHandler"/>
+  		<security:form-login login-page="/oidc-login.jsp"/>
+    	<security:intercept-url pattern="/timeout.jsp" access="permitAll" />        
+        <security:intercept-url pattern="/css/**" access="permitAll" />
+        <security:intercept-url pattern="/images/**" access="permitAll" />
+        <security:intercept-url pattern="/js/**" access="permitAll" />
+        <security:intercept-url pattern="/oidc-logout.jsp" access="permitAll" />
+        <security:intercept-url pattern="/oidc-failed.jsp" access="permitAll" />
+        <security:intercept-url pattern="/logoff.jsp" access="permitAll" />       
+        <security:intercept-url pattern="/oidc-login.jsp" access="permitAll" />       
+        <security:intercept-url pattern="/**" access="isAuthenticated()" />
+         <security:headers>
+           <security:cache-control />
+           <security:content-type-options />
+           <security:frame-options />
+           <security:xss-protection /> 
+           <security:header name="Cache-Control" value="no-cache;no-store;max-age=0"/> 
+           <security:header name="Content-security-policy" value="default-src 'self';img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self';font-src 'self';"/>
+           <security:header name="X-Permitted-Cross-Domain-Policies" value="none"/> 
+           <security:header name="Strict-Transport-Security" value="max-age=31536000;includeSubDomains;preload"/>
+           <security:header name="Expect-CT" value="max-age=86400;enforce"/> 
+		 </security:headers>
+	   <security:logout invalidate-session="false" logout-success-url="/oidc-logout.jsp" logout-url="/j_spring_security_logout" />    
+       <security:custom-filter before="SESSION_MANAGEMENT_FILTER" ref="invSessionRedirect"/>
+       <security:custom-filter ref="customFilter" before="OAUTH2_AUTHORIZATION_REQUEST_FILTER"/>
+       <security:custom-filter ref="customPreLogoutFilter" before="LOGOUT_FILTER"/>
+       <security:custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
+       <security:session-management session-authentication-strategy-ref="sas"/>
+       <security:csrf disabled="true"/>
+    </security:http>
+    
+    <bean id="oidcUserDetails" class="com.fis.ist.springsecurity.oidc.ISTOidcGrantedAuthoritiesUserDetailsService"></bean>
+    <bean id="accessTokenResponseClient" class="org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient"></bean>
+    <bean id="clientRegistrationRepository" class="com.fis.ist.springsecurity.oidc.ISTClientRegistrationRepository" factory-method="buildClientRegistrationRepository">
+    </bean>
+    <bean id="authenticationFailureHandler" class="com.fis.ist.springsecurity.AuthenticationFailureHandler">
+          <property name="defaultFailureUrl" value="/oidc-failed.jsp"/>
+          <property name="authType" value="oidc"/>
+    </bean>
+    <bean id="authenticationSuccessHandler" class="com.fis.ist.springsecurity.AuthenticationSuccessHandler">
+          <property name="defaultTargetUrl" value="/appSelect.jsp"/>
+                <property name="authType" value="oidc"/>
+    </bean>
+ 
+    <bean id="oidcAuthenticationProvider" class="org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider">
+    	<constructor-arg index="0" ref="accessTokenResponseClient" />
+    	<constructor-arg index="1" ref="oidcUserDetails" />
+    </bean>
+    <security:authentication-manager alias="authenticationManager">
+      <security:authentication-provider ref="oidcAuthenticationProvider"/>
+    </security:authentication-manager>
+	<bean id="customFilter" class="com.fis.ist.springsecurity.oidc.ISTAuthFilter"></bean>
+	<bean id="customPreLogoutFilter" class="com.fis.ist.springsecurity.oidc.ISTOidcLogoutFilter"></bean>
+ <bean id="concurrencyFilter"
+   class="org.springframework.security.web.session.ConcurrentSessionFilter">
+  <constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+   <constructor-arg name="expiredUrl" value="/logoff.jsp" /> 
+ </bean>
+ 
+ <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl"/>
+ 
+ <bean id="sas" class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+    <constructor-arg>
+        <list>
+            <bean class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+                <constructor-arg ref="sessionRegistry"/>
+                <property name="maximumSessions" value="${do_maxSessionPerUser:1}" />
+                <property name="exceptionIfMaximumExceeded" value="false" />
+            </bean>
+             <bean
+                        class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy">
+            </bean>
+            <bean
+                        class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+                <constructor-arg ref="sessionRegistry"/>
+            </bean>
+        </list>
+    </constructor-arg>
+</bean>
+
+
+<!--  overriding bean declaration -->
+   	<bean id="invSessionRedirect" class="com.fis.ist.springsecurity.InvSessionRedirect">
+   		<property name="loginUrl" value="/appSelect.jsp"/>
+   		<property name="ignore">
+   			<list>
+   				<value>/oidc-logout.jsp</value>
+   			</list>
+   		</property>
+	</bean>
+<!--   
+<security:client-registrations>
+    <security:client-registration 
+    		client-id="${ist.oidc.client_id}"
+    		client-secret="${ist.oidc.client_secret}"
+			authorization-grant-type="implicit"
+			provider-id="${ist.oidc.provider_id}"
+			registration-id="${ist.oidc.registration_id}"
+			redirect-uri="/appSelect.jsp"
+    		/>
+    <security:provider authorization-uri="${ist.oidc.server_url}" provider-id="${ist.oidc.provider_id}" />
+    </security:client-registrations>
+     -->
+</beans>
