@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--  $Id$ -->
+<project name="IST-Monitoring" default="war">
+	<property name="project" value="IST-Monitoring" />
+	<property name="jar_dir" value="bin" />
+	<property name="jar_file" value="bin/${project}.jar" />
+	<property name="war-file" value="bin/${project}.war" />
+	<property name="java_class_dir" value="bin/java" />
+	<property name="java_src_dir" location="src/main/java" />
+	<property name="config-out" location="config" />
+	<property name="web_inf_work" location="bin/web_inf_work" />
+	<property name="temp_cvs_tag" value="$Name$" />
+	<property name="ng_out_dir" location="bin/ng" />
+	<property name="jasper_src_dir" location="src/main/jasper" />
+	<!-- <property name="jasper_out_dir" location="bin/jasper" /> -->
+	<property name="NG_HOME" value="C:\Users\e5573782\OneDrive - FIS\Manoj Kumar\Project\Monitoring-Tool\WS3\IST-Monitoring\src\main\ng\node_modules" />
+	<property name="YARN_HOME" value="C:\Users\e5573782\OneDrive - FIS\Manoj Kumar\Project\Monitoring-Tool\WS3\IST-Monitoring\src\main\ng\node_modules\yarn" />
+	<property name="SASS_BINARY_PATH" value="C:\Users\e5573782\OneDrive - FIS\Manoj Kumar\Project\Monitoring-Tool\WS3\IST-Monitoring\src\main\ng\node_modules\sass" /> 
+	<!-- <property name="JASPER_HOME" value="C:\D Drive\Program Files\jasperreports-6.3.0" />
+	<property name="JASPER_HOME" value="C:\jasperreports-6.3.0" />
+	-->
+	<condition property="command_suffix" value=".cmd" else="">
+		<os family="windows" />
+	</condition>
+
+	<path id="classpath">
+		<fileset dir="./libs">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="./sharedLib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	<!--  <path id="jasper-classpath">
+		<fileset dir="${JASPER_HOME}/dist" includes="*.jar" />
+		<fileset dir="${JASPER_HOME}/lib" includes="*.jar" />
+	</path>
+	<resources id="jasper_files">
+		<fileset dir="${jasper_out_dir}" includes="**/*.jasper">
+		</fileset>
+	</resources>  -->
+	<target name="cleanup">
+		<delete dir="${java_class_dir}" verbose="true" />
+		<delete dir="${ng_out_dir}}" verbose="true" />
+		<delete dir="${web_inf_work}" verbose="true" />
+		<delete file="${jar_file}" verbose="true" />
+		<delete file="${war-file}" verbose="true" />
+		<!-- <delete dir="${jasper_out_dir}" verbose="true" /> -->
+		<mkdir dir="${java_class_dir}" />
+		<mkdir dir="${ng_out_dir}" />
+	</target>
+
+	<target name="common-make-jar" depends="java-compile">
+		<mkdir dir="${jar_dir}" />
+		<jar destfile="${jar_dir}/${project}.jar">
+			<fileset dir="${java_class_dir}" includes="**/*.class" />
+			<fileset dir="${java_src_dir}" includes="**/*.xml" />
+			<manifest>
+				<attribute name="Implementation-Vendor" value="FIS" />
+				<attribute name="Implementation-Version" value="${cvs_tag}" />
+			</manifest>
+		</jar>
+	</target>
+	<target name="java-compile">
+		<mkdir dir="${java_class_dir}" />
+		<javac srcdir="${java_src_dir}" destdir="${java_class_dir}" source="8" target="8" encoding="utf-8" debug="true">
+			<classpath refid="classpath">
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="build-ng">
+		<echo message="command suffix: ${command_suffix}" />
+		<echo message="Running angular build..." />
+		<mkdir dir="${ng_out_dir}" />
+		<delete>
+			<fileset dir="${ng_out_dir}" />
+		</delete>
+		<!-- run ng build -->
+		<exec dir="src/main/ng" executable="${NG_HOME}/.bin/ng${command_suffix}" failonerror="true">
+			<arg value="build" />
+			<arg value="--prod" />
+			<arg value="--base-href" />
+			<arg value="!!!Context!!!" />
+			<arg value="--output-path" />
+			<arg file="${ng_out_dir}" />
+			<arg value="--deploy-url" />
+			<arg value="ng/" />
+			<env key="SASS_BINARY_PATH" value="${SASS_BINARY_PATH}" />
+		</exec>
+		<echo message="Running post build script" />
+		<exec dir="src/main/ng" executable="${YARN_HOME}/bin/yarn${command_suffix}" failonerror="true">
+			<arg value="run" />
+			<arg value="postbuild" />
+			<arg file="${ng_out_dir}" />
+		</exec>
+		<replace file="${ng_out_dir}/index.html" token="!!!Context!!!" value="&lt;%=getServletContext().getContextPath()%>/" />
+		<replace file="${ng_out_dir}/index.html" token="assets/js" value="js" />
+		<mkdir dir="${web_inf_work}/jsp" />
+		<copy file="${ng_out_dir}/index.html" tofile="${web_inf_work}/jsp/ng-index.jsp" />
+		<resources id="ng-output-files">
+			<fileset dir="bin">
+				<include name="ng/*" />
+				<exclude name="ng/3rdpartylicenses.txt" />
+				<exclude name="ng/index.html" />
+			</fileset>
+		</resources>
+	</target>
+
+	<target name="war" depends="cleanup,common-make-jar,build-ng">
+		<war destfile="${war-file}" needxmlfile="true" webxml="WebContent/WEB-INF/web.xml" duplicate="preserve">
+			<resources refid="ng-output-files" />
+			<fileset dir="WebContent">
+				<include name="**/*" />
+				<exclude name="META-INF/*" />
+			</fileset>
+			<classes dir="${config-out}" />
+			<!-- <classes dir="${jasper_out_dir}" />  -->
+			<webinf dir="WebContent/WEB-INF" />
+			<webinf dir="${web_inf_work}" />
+			<lib dir="./libs" includes="*.jar">
+				<exclude name="jsp-api.jar" />
+				<exclude name="servlet-api.jar" />
+			</lib>
+			<lib dir="bin" includes="${project}.jar" />
+			<manifest>
+				<attribute name="Implementation-Vendor" value="FIS" />
+				<attribute name="Implementation-Version" value="${cvs_tag}" />
+			</manifest>
+		</war>
+	</target>
+	<!-- <taskdef name="jrc" classname="net.sf.jasperreports.ant.JRAntCompileTask">
+		<classpath refid="jasper-classpath" />
+	</taskdef> -->
+	 <!-- <target name="reports">
+		<mkdir dir="${jasper_out_dir}" />
+		<jrc destdir="${jasper_out_dir}">
+			<src>
+				<fileset dir="${jasper_src_dir}" includes="**/*.jrxml" />
+			</src>
+			<classpath>
+				<path refid="jasper-classpath" />
+				<path refid="classpath" />
+				<fileset file="${jar_file}" />
+			</classpath>
+		</jrc>
+	</target> -->
+</project>
