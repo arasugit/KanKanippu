@@ -1,0 +1,29 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es2015",
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2019", "dom"],
+    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "noImplicitReturns": false,
+    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": true,
+    "downlevelIteration": true,
+    "importHelpers": true,
+    "strictNullChecks": false,
+    "skipLibCheck": false,
+    "module": "es2020",
+    "paths": {
+     "@ist-custom-project/shell": ["libs/shell/src/index.ts"]
+    }
+  },
+  "exclude": ["jest.config.ts", "**/*.test.ts", "**/*.spec.ts"]
+}
