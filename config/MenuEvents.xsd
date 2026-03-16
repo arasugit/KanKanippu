@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="urn:xmlns:ist.fisglobal.com/flex/menuEvents"
+	xmlns="urn:xmlns:ist.fisglobal.com/flex/menuEvents"
+	elementFormDefault="qualified"
+>
+	<xs:annotation>
+		<xs:documentation>
+			Definition for the MenuEvents.xml document
+		</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="menuItemType">
+		<xs:sequence>
+			<xs:element name="menuitem" type="menuItemType" minOccurs="0" maxOccurs="1000"/>
+		</xs:sequence>					
+		<xs:attribute name="label" type="xs:string"/>
+		<xs:attribute name="module_name" type="xs:string"/>
+		<xs:attribute name="id" type="xs:string"/>
+		<xs:attribute name="do_not_show_for_sw760" type="xs:boolean"/>
+		<xs:attribute name="alt_mapping_included" type="xs:boolean"/>
+		<xs:attribute name="show_only_for_sp6" type="xs:boolean"/>
+		<xs:attribute name="show_only_for_switch" type="xs:boolean"/>
+		<xs:attribute name="show_only_for_mas" type="xs:boolean"/>
+		<xs:attribute name="show_only_for_clr" type="xs:boolean"/>
+		<xs:attribute name="show_only_for_pos" type="xs:boolean"/>
+		<xs:attribute name="show_only_oassrv" type="xs:boolean"/>
+		<xs:attribute name="do_not_show_for_sp8" type="xs:boolean"/>
+		<xs:attribute name="show_only_for_msam" type="xs:boolean"/>			
+	</xs:complexType>
+	<xs:element name="menu" type="menuItemType"/>
+</xs:schema>

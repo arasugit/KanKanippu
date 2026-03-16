@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+
+	<!-- <service name="INSTLIST" class="com.fis.ist.customProject.services.InstList" 
+		/> -->
+	<service name="TRANSMNTRNG"
+		class="com.fis.ist.customProject.services.EmployeeListSP" />
+	<service name="EMPLIST"
+		class="com.fis.ist.customProject.services.EmployeeList" />
+	<service name="EMPDETAIL"
+		class="com.fis.ist.customProject.services.EmployeeDetail" />
+	<service name="EMPLISTSP"
+		class="com.fis.ist.customProject.services.EmployeeListSP" />
+	<list-provider name="OasUserPopup"
+		class="com.fis.ist.useraccess.services.OasUserPopupListProvider" />
+	<service name="CUSTREPORT"
+		class="com.fis.ist.customProject.services.CustomReports" />
+	<service name="CUSTRPTL"
+		class="com.fis.ist.customProject.services.IstCustomReportsSchedulerList" />
+	<list-provider name="DEPARTMENT_ID_POPUP"
+		class="com.fis.ist.customProject.services.DepartmentIdListProvider" />
+	<service name="MKCQUEUE"
+		class="com.fis.ist.sys.services.MkcQueueList" />
+	<remote-class
+		name="com.fis.ist.customProject.dto.EmpListSPRow" />
+	<remote-class
+		name="com.efunds.t21.services.vo.ResponseStats" />
+	<remote-class
+		name="com.efunds.t21.services.vo.UIMetaCollection" />
+	<remote-class name="com.efunds.t21.services.vo.UIMetaData" />
+	<remote-class
+		name="com.efunds.t21.services.vo.UIMetaField" />
+	<remote-class name="com.efunds.t21.services.vo.UIMetaTab" />
+	<remote-class
+		name="com.efunds.t21.services.vo.UIMetaSection" />
+	<remote-class
+		name="com.efunds.t21.services.vo.UserContext" />
+	<remote-class
+		name="com.efunds.t21.services.vo.WorkCollection" />
+	<remote-class name="com.efunds.t21.services.vo.WorkField" />
+	<remote-class
+		name="com.fis.ist.services.vo.FormActionPermission" />
+	<remote-class
+		name="com.fis.ist.services.vo.FormButtonPermission" />
+	<remote-class
+		name="com.fis.ist.services.vo.FormPermission" />
+	<remote-class
+		name="com.fis.ist.services.vo.FormTabPermission" />
+	<remote-class
+		name="com.fis.ist.services.vo.PanMaskerPatternPermission" />
+	<remote-class name="com.fis.ist.services.vo.WorkRequest" />
+	<remote-class name="com.fis.ist.services.vo.MKCPermission" />
+	<remote-class
+		name="com.fis.ist.customProject.dto.ReportsRow" />
+	<remote-class
+		name="com.fis.ist.services.vo.IstCustomReportsSchedulerListRow" />
+</services>

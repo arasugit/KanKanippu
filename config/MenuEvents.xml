@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu>
+<menuitem label="Dashboard">
+		<menuitem label="Transactions" module_name="TRANSMNTRNG" />
+	</menuitem>
+	<menuitem label="General">
+		<menuitem label="Employee" module_name="EMPLIST" />
+		<menuitem label="Employee - Single page" module_name="EMPLISTSP" />
+	</menuitem>
+	<menuitem label="Custom reports">
+		<menuitem label="Reports" module_name="CUSTREPORT" />
+		<menuitem label="Reports Scheduler" module_name="CUSTRPTL" />
+	</menuitem>
+	<!-- This is just for development purpose; please remove this if the generated 
+		WAR file is going to be merged with product -->
+	<menuitem label="MKC">
+		<menuitem label="MKC Queue List" module_name="MKC_QUEUE" />
+	</menuitem>
+</menu>

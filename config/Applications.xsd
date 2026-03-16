@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="urn:xmlns:ist.fisglobal.com/flex/applications"
+	elementFormDefault="qualified"
+>
+<xs:annotation>
+<xs:documentation>
+	Definition for the Applications.xml document
+</xs:documentation>
+</xs:annotation>
+	<xs:element name="applications">
+		<xs:complexType>
+			<xs:sequence>
+					<xs:element name="application" minOccurs="1" maxOccurs="20">
+						<xs:complexType>
+							<xs:attribute name="id" type="xs:string"/>
+							<xs:attribute name="name" type="xs:string"/>
+							<xs:attribute name="url" type="xs:string"/>
+						</xs:complexType>
+					</xs:element>					
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

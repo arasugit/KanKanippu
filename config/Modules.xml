@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modules>
+	<module 
+		name="EMPLIST"
+		auth_id="Employee"
+		path="com/fis/ist/ui/modules/customProject/Employee/EmployeeList.swf"
+		request_type="EMPLIST"
+		description = "Employee List"	 
+	/>
+
+	<module 
+		name="EMPDETAIL"
+		auth_id="Employee"
+		path="com/fis/ist/ui/modules/customProject/Employee/EmployeeDetail.swf"
+		request_type="EMPDETAIL"
+		description = "Employee Detail"	 
+	/>
+	<module 
+		name="EMPLISTSP"
+		auth_id="EMPLISTSP"
+		path="com/fis/ist/ui/modules/customProject/Employee/EmployeeListSP.swf"
+		request_type="EMPLISTSP"
+		description = "Employee Single Page"	 
+	/>
+	<module
+		name="CUSTREPORT"
+		auth_id="CustomReports"
+		path="com/fis/ist/ui/modules/customProject/Reports/CustomReport.swf"
+	/>
+	<module
+		name="CUSTRPTL"
+		auth_id="CustomScheduler"
+		path="com/fis/ist/ui/modules/customProject/Reports/CustomReportsScheduler.swf"
+	/>
+	<module name="MKC_QUEUE" auth_id="MKCQUEUE"
+		path="com/fis/ist/ui/modules/sys/MKCQueue/MKCQueueList.swf"
+		request_type="MKCQUEUE" description="MKC Queue List" />	
+	
+	<module 
+		name="TRANSMNTRNG"
+		auth_id="TRANSMNTRNG"
+		path="com/fis/ist/ui/modules/customProject/Employee/EmployeeListSP.swf"
+		request_type="TRANSMNTRNG"
+		description = "Transation Monitoring"	 
+	/>
+	
+</modules>
